@@ -1,13 +1,11 @@
 "use client";
 
-import type React from "react";
-
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send } from "lucide-react";
 import { cn } from "@/lib/utils";
+import socket from "@/app/socket";
 
 interface Message {
   id: string;
@@ -21,23 +19,49 @@ interface Message {
 interface ChatWindowProps {
   messages: Message[];
   currentUserId: string;
+  chatId: string;
 }
 
-export function ChatWindow({ messages, currentUserId }: ChatWindowProps) {
+export function ChatWindow({
+  messages: initialMessages,
+  currentUserId,
+  chatId,
+}: ChatWindowProps) {
+  const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Scroll to bottom when messages change
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const handleSendMessage = (content: string) => {
-    console.log(content);
-  };
-
   useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+    socket.emit("join_chat", chatId); // Join chat room
+  }, [chatId]);
+
+  // Handle incoming messages
+  useEffect(() => {
+    const handleReceiveMessage = (message: Message) => {
+      setMessages((prev) => [...prev, message]);
+    };
+
+    socket.on("receive_message", handleReceiveMessage);
+
+    return () => {
+      socket.off("receive_message", handleReceiveMessage);
+    };
+  }, []);
+
+  const handleSendMessage = (content: string) => {
+    const messagePayload = {
+      chatId,
+      senderId: currentUserId,
+      content,
+    };
+
+    socket.emit("send_message", messagePayload);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

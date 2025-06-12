@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 
 const mockChats = [
   {
@@ -68,7 +69,13 @@ export function AppSidebar() {
       />
       <Sidebar>
         <SidebarHeader>
-          <h1>Chat App</h1>
+          <Link
+            href={"/chats"}
+            className="flex items-center gap-2 px-3 mt-3 cursor-pointer"
+          >
+            <Image src={"/logo.png"} alt="Brand logo" width={25} height={25} />
+            <h1 className="text-xl font-semibold text-gray-700">Chat App</h1>
+          </Link>
           <div className="p-3">
             <Button
               variant="outline"

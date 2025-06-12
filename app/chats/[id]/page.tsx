@@ -1,7 +1,10 @@
 import { ChatWindow } from "@/components/chat-window";
+import { getChatMessages } from "@/lib/apis/chat";
 import React from "react";
 
-const ChatDetail = () => {
+const ChatDetail = async ({ params }: any) => {
+  const { id } = await params;
+
   const mockMessages = [
     {
       id: "1",
@@ -45,7 +48,9 @@ const ChatDetail = () => {
     },
   ];
 
-  return <ChatWindow messages={mockMessages} currentUserId="me" />;
+  // const realMessages = await getChatMessages(id);
+
+  return <ChatWindow messages={mockMessages} chatId={id} currentUserId="me" />;
 };
 
 export default ChatDetail;
